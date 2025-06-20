@@ -1,0 +1,17 @@
+# requirements.txt
+transformers==4.41.1
+torch>=2.0.0
+requests>=2.28.0
+
+# Optional for Raspberry Pi (lightweight alternative if needed)
+# tflite-runtime==2.13.0
+# onnxruntime==1.17.0
+
+# If running on Raspberry Pi and torch is too heavy, consider:
+# pip install torch==1.13.1+cpu -f https://download.pytorch.org/whl/cpu/torch_stable.html
+
+# If using Ollama API on localhost:
+# pip install ollama  # if you have a Python wrapper (optional)
+
+# For CPU/Temp stats on Pi (add only if metrics.py is extended)
+# psutil==5.9.6

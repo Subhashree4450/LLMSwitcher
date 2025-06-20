@@ -1,0 +1,31 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+
+# Unit test / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# VSCode / JetBrains / other IDE config
+.vscode/
+
+# Ollama-specific
+ollama.db
+ollama.json
+ollama/
+ollama_models/
+
+# Ignore cache
+.cache/
+__pypackages__/

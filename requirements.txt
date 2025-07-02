@@ -1,4 +1,4 @@
-# requirements.txt
+# requirements.txt     
 transformers==4.41.1
 torch>=2.0.0
 requests>=2.28.0
@@ -15,3 +15,14 @@ requests>=2.28.0
 
 # For CPU/Temp stats on Pi (add only if metrics.py is extended)
 # psutil==5.9.6
+
+
+
+ #transfer between pi and windows
+ #scp serc@192.168.129.87:~/Desktop/Code/experiment_metrics_output.csv
+# D:\Notes\IIITH\data
+#scp -r C:\Users\subha\OneDrive\Desktop\LLMSwitcher\bert-base-uncased 
+#serc@192.168.129.87:~/Desktop/Code/
+
+#activate venv
+# source venv/bin/activate

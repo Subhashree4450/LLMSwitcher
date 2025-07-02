@@ -1,24 +1,23 @@
-# strategies/mlfq.py
-
 from collections import deque
 from core.config import *
 from utils.metrics import get_battery_level, get_cpu_usage, get_temperature
 from utils.tokenizer_utils import get_token_count
 
+# Model priorities
+PRIORITY_HIGH = 0
+PRIORITY_MID = 1
+PRIORITY_LOW = 2
+
 class MLFQModel:
-    def __init__(self, model_id, name, type="Local"):
+    def __init__(self, model_id, name, type="Light"):
         self.model_id = model_id
         self.name = name
-        self.type = type
+        self.type = type  # "Light" or "Heavy"
         self.priority = PRIORITY_MID
         self.token_factor = 1.0
         self.e_factor = 1.0
         self.execution_count = 0
         self.times_rejected = 0
-
-PRIORITY_HIGH = 0
-PRIORITY_MID = 1
-PRIORITY_LOW = 2
 
 class MLFQSelector:
     def __init__(self):
@@ -35,19 +34,23 @@ class MLFQSelector:
         self._initialize_models()
 
     def _initialize_models(self):
+        # "Light" = efficient, low-resource model
+        # "Heavy" = powerful, high-resource model
         self.models = [
-            MLFQModel(DISTILBERT, "DistilBERT", "Local"),
-            MLFQModel(PHI, "Phi", "Local"),
-            MLFQModel(LLAMA, "LLaMA", "Cloud"),
-            MLFQModel(GEMMA, "Gemma", "Cloud"),
+            MLFQModel(PHI, "Phi", "Light"),
+            MLFQModel(LLAMA, "LLaMA", "Heavy"),
+            MLFQModel(GEMMA, "Gemma", "Heavy"),
         ]
         for model in self.models:
             self.mid_queue.append(model)
 
     def select_model(self, content, user_feedback=1.0, first_question=False):
         model = self._get_from_queues()
+        if not model:
+            raise ValueError("No models available in queues.")
+
         token_count = get_token_count(content)
-        if model.type == "Cloud" and token_count > TOKEN_THRESHOLD_HIGH:
+        if model.type == "Heavy" and token_count > TOKEN_THRESHOLD_HIGH:
             model.token_factor = 2.0
         else:
             model.token_factor = 1.0
@@ -55,16 +58,16 @@ class MLFQSelector:
         model.execution_count += 1
         self.runs_since_boost += 1
 
-        # Feedback adjustments
         if not first_question and self.prev_model:
             self._adjust_model_priority(user_feedback)
 
         self.prev_model = model
+
         if self.runs_since_boost > self.boost_interval:
             self._boost_all()
             self.runs_since_boost = 0
 
-        return model.model_id
+        return model
 
     def _get_from_queues(self):
         if self.high_queue:

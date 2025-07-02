@@ -23,7 +23,6 @@ class EpsilonGreedySelector:
     def __init__(self):
         self.epsilon = EPSILON
         self.models = [
-            EcoModel(DISTILBERT, "DistilBERT", 1.5, 0.8),
             EcoModel(PHI, "Phi", 1.8, 0.85),
             EcoModel(LLAMA, "LLaMA", 2.0, 0.9),
             EcoModel(GEMMA, "Gemma", 2.2, 0.95),
@@ -40,24 +39,31 @@ class EpsilonGreedySelector:
         score = (battery_score * weight_battery + cpu_score * weight_cpu + confidence * weight_conf)
         return e_factor * token_factor * score
 
-    def select_model(self):
+    def select_model(self, question=None, user_feedback=1.0, first_question=False):
         battery = get_battery_level()
         cpu = get_cpu_usage()
         temp = get_temperature()
 
+        # Exploration: Randomly pick one
         if random.random() < self.epsilon:
-            return random.choice(self.models).model_id
+            return random.choice(self.models)
 
+        # Exploitation: Pick the best scoring model
         best_model = None
-        best_score = float("inf")
+        best_score = -float("inf")
 
         for model in self.models:
             score = self.calculate_score(
-                battery, model.energy_consumption, temp, cpu,
-                1.0, model.confidence_score, 1.0
+                battery=battery,
+                energy=model.energy_consumption,
+                temp=temp,
+                cpu=cpu,
+                token_factor=1.0,  # placeholder if needed
+                confidence=model.confidence_score,
+                e_factor=1.0  # can be dynamic in future
             )
-            if score < best_score:
+            if score > best_score:
                 best_score = score
                 best_model = model
 
-        return best_model.model_id
+        return best_model

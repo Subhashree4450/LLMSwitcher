@@ -9,20 +9,25 @@ class NaiveSelector:
         temp = get_temperature()
         tokens = get_token_count(content)
 
+        # Case 1: High temperature or low battery + high CPU
         if temp > TEMPERATURE_THRESHOLD or (battery <= BATTERY_THRESHOLD_LOW and cpu > CPU_THRESHOLD_HIGH):
-            return DISTILBERT
+            return PHI  # lightweight and lower resource use
 
+        # Case 2: High token count (needs strong model)
         elif tokens >= TOKEN_THRESHOLD_HIGH:
             if battery >= BATTERY_THRESHOLD_HIGH and cpu <= CPU_THRESHOLD_HIGH:
-                return GEMMA
+                return GEMMA  # powerful model for long input
             else:
-                return PHI
+                return PHI  # fallback to lighter model
 
+        # Case 3: Battery is high
         elif battery >= BATTERY_THRESHOLD_HIGH:
             return PHI if cpu > CPU_THRESHOLD_HIGH else LLAMA
 
+        # Case 4: Battery is medium
         elif battery > BATTERY_THRESHOLD_LOW:
             return PHI
 
+        # Case 5: Battery is critically low (fallback)
         else:
-            return DISTILBERT
+            return PHI

@@ -2,7 +2,8 @@ from core.config import *
 
 class RoundRobinSelector:
     def __init__(self):
-        self.queue = [DISTILBERT, PHI, LLAMA, GEMMA]
+        # Only include generative models
+        self.queue = [PHI, LLAMA, GEMMA]
         self.index = 0
 
     def get_next_model(self):
